@@ -64,7 +64,7 @@ nav button:hover {
 
 .card-container {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2열로 설정 */
+    grid-template-columns: repeat(2, 1fr); /* 2열로 설정ㅇ*/
     gap: 20px;
     justify-items: center;
     width: 100%;

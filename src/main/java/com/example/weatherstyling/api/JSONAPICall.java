@@ -1,5 +1,6 @@
 package com.example.weatherstyling.api;
 
+import com.example.weatherstyling.model.Weather;
 import jdk.jshell.spi.SPIResolutionException;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,12 +13,18 @@ import java.io.*;
 @Component
 public class JSONAPICall {
 
-    public String callAPI() throws Exception {
+    public String callAPI(String info) throws Exception {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
+
+
+        //url = url_body + tm + "&" + "stn=" + stn + "&" + help + "&" + "authKey=" + authKey
+
+        //https://apihub.kma.go.kr/api/typ01/url/kma_sfctm2.php?tm=202211300900&stn=0&help=0&authKey=CkaIt4xtSU6GiLeMbalOLA
+
         // API URL을 만듭니다.
-        URL url = new URL("https://apihub.kma.go.kr/api/typ01/url/kma_sfctm2.php?stn=0&help=1&authKey=oqq5zcJtQkSquc3CbWJEyA");
+        URL url = new URL(info);
         // HttpURLConnection 객체를 만들어 API를 호출합니다.
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         // 요청 방식을 GET으로 설정합니다.
@@ -40,6 +47,8 @@ public class JSONAPICall {
 
         String prettyJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response);
         System.out.println(prettyJson);
+
+        //여기에서 날씨 데이터 분리하고 정리해야함. ex) 온도, 습도 등
 
         return prettyJson;
     }

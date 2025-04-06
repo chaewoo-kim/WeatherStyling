@@ -7,6 +7,7 @@
   <title>대전 날씨</title>
 </head>
 <body>
+<script src="/script.js"></script>
 <header>
   <h1>대전</h1>
   <p>일교차가 크므로 외투를 꼭 챙기세요</p>
@@ -14,18 +15,32 @@
 </header>
 
 <nav>
-  <button>All</button>
-  <button>스트릿</button>
-  <button>캐주얼</button>
-  <button>데이트</button>
+  <select id="styleSelect">
+    <option value="All">스타일: all</option>
+    <option value="캐주얼">스타일: 캐주얼</option>
+    <option value="스트릿">스타일: 스트릿</option>
+    <option value="데이트">스타일: 데이트</option>
+  </select>
+  <select id="sexSelect">
+    <option value="여성">여성</option>
+    <option value="남성">남성</option>
+  </select>
+  <select id="placeNumberSelect">
+    <option value="108">서울</option>
+    <option value="133">대전</option>
+    <option value="159">부산</option>
+  </select>
+  <button id="recommendButton">추천 받기</button> <!-- 추천 받기 버튼 추가 -->
 </nav>
+
+
 <div class="container">
   <div class="button-container">
     <button class="side-button"><</button>
   </div>
 
   <div class="big-card">
-    <div class="card-container">
+    <div class="card-container" id="recommendationCardContainer">
       <div class="card">
         <img src="jacket.jpg" alt="코디1">
       </div>

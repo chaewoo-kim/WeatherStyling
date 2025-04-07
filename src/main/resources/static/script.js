@@ -39,11 +39,11 @@ async function getApiInfo(placeNumber) {
     }
 }
 
-async function getRecommendedOutfit(style, sex) {
+async function getRecommendedOutfit(style, gender) {
     const url = '/api/outfit'; // 백엔드 API 엔드포인트
     const requestBody = {
         style: style,
-        sex: sex,
+        gender: gender,
     };
 
     try {
@@ -71,9 +71,9 @@ async function callRecommendationAPI() {
     const styleSelect = document.getElementById('styleSelect');
     const sexSelect = document.getElementById('sexSelect');
     const style = styleSelect.value; // 선택된 스타일 값 가져오기
-    const sex = sexSelect.value; // 선택된 성별 값 가져오기
+    const gender = sexSelect.value; // 선택된 성별 값 가져오기
 
-    const recommendation = await getRecommendedOutfit(style, sex);
+    const recommendation = await getRecommendedOutfit(style, gender);
 
     if (recommendation) {
         console.log('추천된 옷:', recommendation);

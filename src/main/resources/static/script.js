@@ -1,8 +1,21 @@
 // script.js
 async function getApiInfo(placeNumber) {
     const url = '/api/getApiInfo'; // 백엔드 API 엔드포인트
+
+    const now = new Date(); // 현재 날짜 및 시간 가져오기
+    const year = now.getFullYear().toString(); // (4자리)
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // (2자리, 0으로 채움)
+    const day = String(now.getDate()).padStart(2, '0');
+    const hour = String(now.getHours()).padStart(2, '0');
+    const minute = String(now.getMinutes()).padStart(2, '0');
+
     const requestBody = {
         placeNumber: placeNumber,
+        year: year,
+        month: month,
+        day: day,
+        hour: hour,
+        minute: minute,
     };
 
     try {

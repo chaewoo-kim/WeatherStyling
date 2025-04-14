@@ -58,7 +58,7 @@ async function getRecommendedOutfit(style, gender) {
 
     try {
         const response = await fetch(url, {
-            method: 'POST', // POST 요청 사용
+            method: 'GET', // POST 요청 사용
             headers: {
                 'Content-Type': 'application/json', // JSON 형식으로 데이터 전송
             },

@@ -18,7 +18,7 @@ public class Weather {
     public long id;
 
     public Date date;
-    public String region;
+    public Double placeNumber;
     public Double temperature;
     public Double humidity;
     public Double wind_speed;

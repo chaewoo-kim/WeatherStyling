@@ -35,10 +35,9 @@ async function getApiInfo(placeNumber) {
             throw new Error(`HTTP error! status: ${response.status}`); // HTTP 에러 발생 시 에러 던지기
         }
 
-        const data = await response.json(); // 응답 데이터를 JSON 형태로 파싱
-        return data; // API 정보 반환
+        return await response.json(); // 응답 데이터를 JSON 형태로 파싱 후 API 정보 반환
     } catch (error) {
-        console.error('API 호출 실패:', error);
+        console.error('getApiInfo 호출 실패:', error);
         return null; // 에러 발생 시 null 반환 또는 에러 처리
     }
 }
@@ -69,10 +68,9 @@ async function getRecommendedOutfit(style, gender) {
             throw new Error(`HTTP error! status: ${response.status}`); // HTTP 에러 발생 시 에러 던지기
         }
 
-        const data = await response.json(); // 응답 데이터를 JSON 형태로 파싱
-        return data; // 추천된 옷 정보 반환
+        return await response.json(); // 응답 데이터를 JSON 형태로 파싱 추천된 옷 정보 반환
     } catch (error) {
-        console.error('API 호출 실패:', error);
+        console.error('outfit 호출 실패:', error);
         return null; // 에러 발생 시 null 반환 또는 에러 처리
     }
 }
@@ -144,24 +142,25 @@ function displayRecommendation(recommendation) {
 
     if (recommendation) {
         // 추천 결과가 있는 경우
+        const { top, bottom, jacket, shoes } = recommendation;
         const topCard = document.createElement('div');
         topCard.classList.add('card'); // card 클래스 추가
-        topCard.innerHTML = `<img src="${recommendation.top}" alt="상의">`; // 이미지 설정
+        topCard.innerHTML = `<img src="${top}" alt="상의">`; // 이미지 설정
         cardContainer.appendChild(topCard); // 카드 컨테이너에 카드 추가
 
         const bottomCard = document.createElement('div');
         bottomCard.classList.add('card');
-        bottomCard.innerHTML = `<img src="${recommendation.bottom}" alt="하의">`;
+        bottomCard.innerHTML = `<img src="${bottom}" alt="하의">`;
         cardContainer.appendChild(bottomCard);
 
         const jacketCard = document.createElement('div');
         jacketCard.classList.add('card');
-        jacketCard.innerHTML = `<img src="${recommendation.jacket}" alt="재킷">`;
+        jacketCard.innerHTML = `<img src="${jacket}" alt="재킷">`;
         cardContainer.appendChild(jacketCard);
 
         const shoesCard = document.createElement('div');
         shoesCard.classList.add('card');
-        shoesCard.innerHTML = `<img src="${recommendation.shoes}" alt="신발">`;
+        shoesCard.innerHTML = `<img src="${shoes}" alt="신발">`;
         cardContainer.appendChild(shoesCard);
     } else {
         // 추천 결과가 없는 경우

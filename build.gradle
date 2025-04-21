@@ -30,6 +30,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")  //JPA
 	implementation("org.projectlombok:lombok") //Lombok 기능
 	annotationProcessor("org.projectlombok:lombok") //Lombok이 compile 될 때 적용되도록 추가
+	implementation 'org.json:json:20240303' //json 객체 사용하기 위해 추가
 
 }
 

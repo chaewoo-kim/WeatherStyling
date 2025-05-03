@@ -48,7 +48,9 @@ public class JSONAPICall {
         String prettyJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response);
         System.out.println(prettyJson);
 
-        //여기에서 날씨 데이터 분리하고 정리해야함. ex) 온도, 습도 등
+        //기상청 API로 받은 string 편집
+        StringParser stringParser = new StringParser(prettyJson);
+        stringParser.stringParser();
 
         return prettyJson;
     }

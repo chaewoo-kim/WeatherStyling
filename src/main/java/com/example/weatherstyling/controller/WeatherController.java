@@ -8,7 +8,10 @@ import com.example.weatherstyling.api.WeatherRequest;
 import com.example.weatherstyling.service.WeatherService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -18,7 +21,7 @@ public class WeatherController {
     private final WeatherService weatherService;
 
     @PostMapping("/getApiInfo")
-    public String getApiInfo(@RequestBody WeatherRequest request) {
+    public Map<String, String> getApiInfo(@RequestBody WeatherRequest request) {
 
         request.setTm(request.getYear() + request.getMonth() + request.getDay() + request.getHour() + request.getMinute());
         request.setUrl_main(request.getUrl_body() + request.getTm() + "&stn=" + request.getPlaceNumber() + "&" + request.getHelp() + "&authKey=" + request.getAuthKey());
@@ -26,8 +29,9 @@ public class WeatherController {
         return weatherService.getWeatherData(request.getUrl_main());
     }
 
-    @GetMapping("/outfit")
-    public StyleList getOutfit(@RequestBody CustomerRequest request) {
+    @PostMapping("/outfit")
+    public Map<String, String> getOutfit(@RequestBody CustomerRequest request) {
+
         return weatherService.getOutfitData(request.getStyle());
     }
 

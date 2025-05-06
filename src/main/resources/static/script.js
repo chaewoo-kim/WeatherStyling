@@ -81,13 +81,13 @@ async function getRecommendedOutfit(style, gender) {
  */
 let recommendations = []; // 추천 결과를 저장할 배열
 let currentIndex = -1; // 현재 표시 중인 조합의 인덱스
-
+let style, gender;
 async function callRecommendationAPI() {
     const styleSelect = document.getElementById('styleSelect'); // 스타일 선택 select 요소 가져오기
     const sexSelect = document.getElementById('sexSelect'); // 성별 선택 select 요소 가져오기
     const placeNumberSelect = document.getElementById('placeNumberSelect');
-    const style = styleSelect.value; // 선택된 스타일 값 가져오기
-    const gender = sexSelect.value; // 선택된 성별 값 가져오기
+    style = styleSelect.value; // 선택된 스타일 값 가져오기
+    gender = sexSelect.value; // 선택된 성별 값 가져오기
     const placeNumber = placeNumberSelect.value;
 
     const apiInfo = await getApiInfo(placeNumber);
@@ -199,9 +199,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (prevButton) {
         prevButton.addEventListener('click', () => {
+            console.log('왼쪽 화살표 클릭됨');
+            console.log('현재 인덱스 (클릭 전):', currentIndex);
+
             if (currentIndex > 0) {
-                currentIndex--; // 인덱스를 감소
-                displayRecommendation(recommendations[currentIndex]); // 이전 조합 표시
+                currentIndex--;
+                displayRecommendation(recommendations[currentIndex]);
+                console.log('핸재 인덱스 (클릭 후):', currentIndex);
             } else {
                 console.log('첫 번째 조합입니다.');
             }
@@ -209,13 +213,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (nextButton) {
-        nextButton.addEventListener('click', () => {
+        nextButton.addEventListener('click', async () => {
+            console.log('오른쪽 화살표 클릭됨');
+            console.log('현재 인덱스 (클릭 전):', currentIndex);
+
             if (currentIndex < recommendations.length - 1) {
-                currentIndex++; // 인덱스를 증가
-                displayRecommendation(recommendations[currentIndex]); // 다음 조합 표시
+                currentIndex++;
+                displayRecommendation(recommendations[currentIndex]);
+                console.log('현재 인덱스 (클릭 후):', currentIndex);
             } else {
-                // 새로운 조합을 가져오는 로직
-                getNextOutfit(style, gender); // API 호출하여 새로운 조합 가져오기
+                await getNextOutfit(style, gender);
             }
         });
     }

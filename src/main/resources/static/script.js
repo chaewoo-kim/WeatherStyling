@@ -23,6 +23,7 @@ async function getApiInfo(placeNumber) {
     };
 
     try {
+        console.log(url);
         const response = await fetch(url, {
             method: 'POST', // POST 요청 사용
             headers: {
@@ -54,7 +55,7 @@ async function getRecommendedOutfit(style, gender) {
         style: style,
         gender: gender,
     };
-
+    console.log(url);
     try {
         const response = await fetch(url, {
             method: 'POST', // POST 요청 사용
@@ -92,6 +93,7 @@ async function callRecommendationAPI() {
     const apiInfo = await getApiInfo(placeNumber);
 
     if (apiInfo) {
+        console.log('여기까진 정상 작동');
         console.log('API 정보:', apiInfo);
         // API 정보를 사용하여 header 업데이트
         updateHeader(apiInfo);
@@ -120,15 +122,16 @@ function updateHeader(apiInfo) {
     const h1 = header.querySelector('h1'); // h1 요소 가져오기
     const p = header.querySelector('p'); // p 요소 가져오기
     const temperatureDiv = header.querySelector('.temperature'); // temperature div 요소 가져오기
-
+    console.log(Object.keys(apiInfo).length === 0);
     if (apiInfo) {
         // API 정보가 있는 경우
-        const { temperature, humidity, precipitationProbability, windSpeed } = apiInfo; // API 정보에서 값 추출
-
+        const { HM, RN, WS } = apiInfo; // API 정보에서 값 추출
+        const TA = apiInfo.TA
+        console.log(TA, HM, RN, WS);
         // header 내용 업데이트
         h1.innerText = document.getElementById('placeNumberSelect').options[document.getElementById('placeNumberSelect').selectedIndex].text; // 지역 이름으로 업데이트
-        p.innerText = `습도: ${humidity}%, 강수확률: ${precipitationProbability}%, 풍속: ${windSpeed}m/s`; // 습도, 강수확률, 풍속 표시
-        temperatureDiv.innerText = `${temperature}°C`; // 온도 표시
+        p.innerText = `습도: ${HM}%, 강수확률: ${RN}%, 풍속: ${WS}m/s`; // 습도, 강수확률, 풍속 표시
+        temperatureDiv.innerText = `${TA}°C`; // 온도 표시
     } else {
         // API 정보가 없는 경우
         h1.innerText = '지역 정보를 가져올 수 없습니다.';

@@ -78,6 +78,9 @@ async function getRecommendedOutfit(style, gender) {
 /**
  * 추천 API를 호출하고 결과를 화면에 표시하는 함수
  */
+let recommendations = []; // 추천 결과를 저장할 배열
+let currentIndex = -1; // 현재 표시 중인 조합의 인덱스
+
 async function callRecommendationAPI() {
     const styleSelect = document.getElementById('styleSelect'); // 스타일 선택 select 요소 가져오기
     const sexSelect = document.getElementById('sexSelect'); // 성별 선택 select 요소 가져오기
@@ -100,6 +103,8 @@ async function callRecommendationAPI() {
 
     if (recommendation) {
         console.log('추천된 옷:', recommendation);
+        recommendations.push(recommendation); // 추천 결과를 배열에 추가
+        currentIndex = recommendations.length - 1; // 현재 인덱스를 마지막으로 설정
         displayRecommendation(recommendation); // 추천 결과 화면에 표시
     } else {
         console.log('추천 실패');
@@ -168,13 +173,61 @@ function displayRecommendation(recommendation) {
     }
 }
 
-/**
- * 로딩끝나면 실행되는 함수
- */
+async function getNextOutfit(style, gender) {
+    const recommendation = await getRecommendedOutfit(style, gender); // 새로운 조합을 가져오는 API 호출
+    if (recommendation) {
+        recommendations.push(recommendation); // 새로운 조합을 배열에 추가
+        currentIndex++; // 인덱스를 증가
+        displayRecommendation(recommendation); // 추천 결과 화면에 표시
+    } else {
+        console.log('추천 실패');
+    }
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
     const recommendButton = document.getElementById('recommendButton'); // 추천 받기 버튼 요소 가져오기
+    const prevButton = document.getElementById('prevButton'); // 왼쪽 화살표 버튼
+    const nextButton = document.getElementById('nextButton'); // 오른쪽 화살표 버튼
+
     if (recommendButton) {
-        recommendButton.addEventListener('click', callRecommendationAPI); // 클릭 이벤트 리스너 등록
+        recommendButton.addEventListener('click', callRecommendationAPI); // 추천 받기 버튼 클릭 이벤트
     }
 
+    if (prevButton) {
+        prevButton.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--; // 인덱스를 감소
+                displayRecommendation(recommendations[currentIndex]); // 이전 조합 표시
+            } else {
+                console.log('첫 번째 조합입니다.');
+            }
+        });
+    }
+
+    if (nextButton) {
+        nextButton.addEventListener('click', () => {
+            if (currentIndex < recommendations.length - 1) {
+                currentIndex++; // 인덱스를 증가
+                displayRecommendation(recommendations[currentIndex]); // 다음 조합 표시
+            } else {
+                // 새로운 조합을 가져오는 로직
+                getNextOutfit(style, gender); // API 호출하여 새로운 조합 가져오기
+            }
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 현재 요일을 가져옵니다.
+    const now = new Date();
+    const currentDay = now.getDay(); // 0: 일요일, 1: 월요일, ..., 6: 토요일
+
+    const dayRadios = document.getElementsByName('day');
+
+    if (currentDay === 0) {
+        dayRadios[6].checked = true; // 일요일
+    } else {
+        dayRadios[currentDay - 1].checked = true; // 현재 요일에 해당하는 라디오 버튼 선택
+    }
 });

@@ -23,10 +23,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' //서버 측에서 HTML 생성
 	implementation 'org.springframework.boot:spring-boot-starter-web-services'
+	implementation 'org.crac:crac:1.4.0'
+	implementation 'mysql:mysql-connector-java:8.0.33'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	runtimeOnly 'com.mysql:mysql-connector-j' //MySQL connector
+
+	runtimeOnly 'com.mysql:mysql-connector-j:8.3.0'
+	//MySQL connector
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")  //JPA
 	implementation("org.projectlombok:lombok") //Lombok 기능
 	annotationProcessor("org.projectlombok:lombok") //Lombok이 compile 될 때 적용되도록 추가

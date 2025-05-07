@@ -1,6 +1,8 @@
 package com.example.weatherstyling.api;
 
 import org.json.JSONObject;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -30,7 +32,7 @@ public class StringParser {
     int columnLength = column.trim().split("\\s+").length; //열 종류의 수
     String numData = ""; //문자열로 저장된 숫자 데이터
     String [] numbers = new String[columnLength]; //숫자를 string으로 순서대로 저장
-    Integer [] numArr = new Integer[columnLength]; //string으로 되어있는 숫자를 Integer로 저장
+//    Integer [] numArr = new Integer[columnLength]; //string으로 되어있는 숫자를 Integer로 저장
 
 
     public StringParser(String info) {
@@ -46,6 +48,9 @@ public class StringParser {
         String target = "YYMMDDHHMI";
         int index = info.indexOf(target);
         String data = info.substring(index); //YYMMDDHHMI부터 끝까지 저장
+        System.out.println(data);
+        System.out.println(info);
+        System.out.println(columnLength);
 
         //데이터 부분만 남기기
         Pattern pattern = Pattern.compile("\\d{12}");
@@ -53,40 +58,40 @@ public class StringParser {
 
         if (matcher.find()) {
             int startIndex = matcher.start();
-            numData = info.substring(startIndex);
+            numData = data.substring(startIndex);
             numbers = numData.split("\\s+");
+            System.out.println(Arrays.toString(numbers));
+//            numbers[numbers.length-1] = numbers[numbers.length-1].replace("#", "");
+            System.out.println(numbers.length);
         } else {
             System.out.println("12자리 숫자 찾을 수 없음");
         }
 
-        //필요한 열들 반복분에 쓰기 쉽도록 배열에 저장
-        for (int i = 0; i < numbers.length; i++) {
-            numArr[i] = Integer.parseInt(numbers[i]);
-        }
+//        //필요한 열들 반복분에 쓰기 쉽도록 배열에 저장
+//        for (int i = 0; i < numbers.length; i++) {
+////            numArr[i] = Integer.parseInt(numbers[i]);
+//        }
     }
 
-    public JSONObject makeMap() {
+    public Map<String, String> makeMap() {
         // Map 자료구조를 사용해 열 값에 맞는 값들을 넣을 것임
         // key : column, value : data
-        Map<String, Integer> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         for (int i = 0; i < columnLength; i++) {
-            map.put(columns[i], numArr[i]);
+            map.put(columns[i], numbers[i]);
         }
-
-        return returnJsonObject(map);
+        System.out.println("map : " + map);
+        return map;
     }
 
     public JSONObject returnJsonObject(Map map) {
         //원하는 데이터 json 객체에 저장
-        //뽑아낼 데이터 : 풍속(WS), 기온(TA), 상대습도(HM), 강수량(RN), 국내식 일기코드(WW), 지면상태 코드(ST_GD)
+        //뽑아낼 데이터 : 풍속(WS), 기온(TA), 상대습도(HM), 강수확률(강수확률은 API 새로 파야함)
         JSONObject json = new JSONObject();
-        json.put("WS", map.get("WS"));
-        json.put("TA", map.get("TA"));
-        json.put("HM", map.get("HM"));
-        json.put("RN", map.get("RN"));
-        json.put("WW", map.get("WW"));
-        json.put("ST_GD", map.get("ST_GD"));
-
+        json.put("windSpeed", map.get("WS"));
+        json.put("temperature", map.get("TA"));
+        json.put("humidity", map.get("HM"));
+        System.out.println("json : " + json);
         return json;
     }
 

@@ -23,6 +23,7 @@ async function getApiInfo(placeNumber) {
     };
 
     try {
+        console.log(url);
         const response = await fetch(url, {
             method: 'POST', // POST 요청 사용
             headers: {
@@ -45,7 +46,7 @@ async function getApiInfo(placeNumber) {
 
 /**
  * 스타일과 성별에 따른 추천 의류 정보를 가져오는 함수
- * @param {string} style 스타일 (ex: 캐주얼, 스트릿, 데이트)
+ * @param {string} style 스타일 (ex: 캐주얼, 미니멀, 포멀)
  * @param {string} gender 성별 (ex: 여성, 남성)
  * @returns {Promise<object|null>} 추천 의류 정보 (성공 시) 또는 null (실패 시)
  */
@@ -55,10 +56,10 @@ async function getRecommendedOutfit(style, gender) {
         style: style,
         gender: gender,
     };
-
+    console.log(url);
     try {
         const response = await fetch(url, {
-            method: 'GET', // POST 요청 사용
+            method: 'POST', // POST 요청 사용
             headers: {
                 'Content-Type': 'application/json', // JSON 형식으로 데이터 전송
             },
@@ -83,8 +84,21 @@ async function getRecommendedOutfit(style, gender) {
 async function callRecommendationAPI() {
     const styleSelect = document.getElementById('styleSelect'); // 스타일 선택 select 요소 가져오기
     const sexSelect = document.getElementById('sexSelect'); // 성별 선택 select 요소 가져오기
+    const placeNumberSelect = document.getElementById('placeNumberSelect');
     const style = styleSelect.value; // 선택된 스타일 값 가져오기
     const gender = sexSelect.value; // 선택된 성별 값 가져오기
+    const placeNumber = placeNumberSelect.value;
+
+    const apiInfo = await getApiInfo(placeNumber);
+
+    if (apiInfo) {
+        console.log('여기까진 정상 작동');
+        console.log('API 정보:', apiInfo);
+        // API 정보를 사용하여 header 업데이트
+        updateHeader(apiInfo);
+    } else {
+        console.log('API 정보 가져오기 실패');
+    }
 
     const recommendation = await getRecommendedOutfit(style, gender); // 추천 API 호출
 
@@ -93,6 +107,33 @@ async function callRecommendationAPI() {
         displayRecommendation(recommendation); // 추천 결과 화면에 표시
     } else {
         console.log('추천 실패');
+    }
+}
+
+/**
+ * API 정보를 받아 헤더를 업데이트하는 함수
+ * @param {object} apiInfo API 정보 (온도, 습도, 강수확률, 풍속 속성 포함)
+ */
+function updateHeader(apiInfo) {
+    const header = document.querySelector('header'); // header 요소 가져오기
+    const h1 = header.querySelector('h1'); // h1 요소 가져오기
+    const p = header.querySelector('p'); // p 요소 가져오기
+    const temperatureDiv = header.querySelector('.temperature'); // temperature div 요소 가져오기
+    console.log(Object.keys(apiInfo).length === 0);
+    if (apiInfo) {
+        // API 정보가 있는 경우
+        const { HM, RN, WS } = apiInfo; // API 정보에서 값 추출
+        const TA = apiInfo.TA
+        console.log(TA, HM, RN, WS);
+        // header 내용 업데이트
+        h1.innerText = document.getElementById('placeNumberSelect').options[document.getElementById('placeNumberSelect').selectedIndex].text; // 지역 이름으로 업데이트
+        p.innerText = `습도: ${HM}%, 강수확률: ${RN}%, 풍속: ${WS}m/s`; // 습도, 강수확률, 풍속 표시
+        temperatureDiv.innerText = `${TA}°C`; // 온도 표시
+    } else {
+        // API 정보가 없는 경우
+        h1.innerText = '지역 정보를 가져올 수 없습니다.';
+        p.innerText = 'API 호출에 실패했습니다.';
+        temperatureDiv.innerText = '-°C';
     }
 }
 
@@ -140,9 +181,4 @@ document.addEventListener('DOMContentLoaded', function() {
         recommendButton.addEventListener('click', callRecommendationAPI); // 클릭 이벤트 리스너 등록
     }
 
-    const placeNumberSelect = document.getElementById('placeNumberSelect'); // 지점 번호 선택 select 요소 가져오기
-    placeNumberSelect.addEventListener('change', function() {
-        const placeNumber = placeNumberSelect.value; // 선택된 지점 번호 가져오기
-        getApiInfo(placeNumber); // 지점 번호 변경 시 API 정보 요청
-    });
 });

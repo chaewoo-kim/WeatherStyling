@@ -24,5 +24,5 @@ public class WeatherRequest {
 
     private String help = "help=0";
 
-    private String authKey = "CkaIt4xtSU6GiLeMbalOLA";
+    private String authKey = "oqq5zcJtQkSquc3CbWJEyA";
 }

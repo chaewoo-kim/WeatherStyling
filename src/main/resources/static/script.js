@@ -1,17 +1,15 @@
 /**
  * 특정 지역 번호에 대한 API 정보를 가져오는 함수
  * @param {string} placeNumber 지역 번호
+ * @param year
+ * @param month
+ * @param day
+ * @param hour
+ * @param minute
  * @returns {Promise<object|null>} API 정보 (성공 시) 또는 null (실패 시)
  */
-async function getApiInfo(placeNumber) {
+async function getApiInfo(placeNumber, year, month, day, hour, minute) {
     const url = '/api/getApiInfo'; // 백엔드 API 엔드포인트
-
-    const now = new Date(); // 현재 날짜 및 시간 가져오기
-    const year = now.getFullYear().toString(); // (4자리)
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // (2자리, 0으로 채움)
-    const day = String(now.getDate()).padStart(2, '0');
-    const hour = String(now.getHours()).padStart(2, '0');
-    const minute = String(now.getMinutes()).padStart(2, '0');
 
     const requestBody = {
         placeNumber: placeNumber,
@@ -82,6 +80,7 @@ async function getRecommendedOutfit(style, gender) {
 let recommendations = []; // 추천 결과를 저장할 배열
 let currentIndex = -1; // 현재 표시 중인 조합의 인덱스
 let style, gender;
+const dayValueMap = {"sun": 0, "mon": 1, "tue": 2, "wed": 3, "thu": 4, "fri": 5, "sat": 6};
 async function callRecommendationAPI() {
     const styleSelect = document.getElementById('styleSelect'); // 스타일 선택 select 요소 가져오기
     const sexSelect = document.getElementById('sexSelect'); // 성별 선택 select 요소 가져오기
@@ -90,7 +89,51 @@ async function callRecommendationAPI() {
     gender = sexSelect.value; // 선택된 성별 값 가져오기
     const placeNumber = placeNumberSelect.value;
 
-    const apiInfo = await getApiInfo(placeNumber);
+    const selectedDayRadio = document.querySelector('input[name="day"]:checked');
+    const selectedDayValue = selectedDayRadio ? selectedDayRadio.value : null;
+
+    let targetDate = new Date(); // 요청 보낼 날짜 (기본값은 오늘)
+
+    if (selectedDayValue) {
+        const currentDayOfWeek = targetDate.getDay(); // 현재 요일 (0:일, 1:월, ...)
+        const selectedDayOfWeek = dayValueMap[selectedDayValue]; // 선택된 요일의 숫자 값
+
+        if (selectedDayOfWeek !== undefined) {
+            // 현재 요일과 선택된 요일 간의 차이 계산
+            let diff = selectedDayOfWeek - currentDayOfWeek;
+
+            // 선택된 요일이 현재 요일보다 이전이면 다음 주로 이동
+            if (diff < 0) {
+                diff += 7;
+            } else if (diff === 0 && selectedDayOfWeek === currentDayOfWeek) {
+                // 오늘 요일과 같은 요일을 선택했다면, 오늘 날짜 사용
+                // 별도의 날짜 조정 필요 없음
+            }
+            else if (diff === 0 && selectedDayOfWeek !== currentDayOfWeek) {
+                // 재정렬된 요일 목록에서 현재 요일과 같은 라벨을 선택했을 경우 (getDay() 값과 무관)
+                // 이 경우는 동적 생성 로직으로 인해 발생하지 않거나 다른 처리가 필요
+                // 여기서는 getDay() 값을 기준으로 날짜를 계산하는 것으로 가정합니다.
+            }
+
+
+            // 오늘 날짜에 차이를 더해서 목표 날짜 계산
+            targetDate.setDate(targetDate.getDate() + diff);
+        }
+    } else {
+        console.warn("요일이 선택되지 않았습니다. 오늘 날짜로 요청합니다.");
+    }
+
+    // 계산된 targetDate에서 년, 월, 일 추출
+    const year = targetDate.getFullYear().toString();
+    const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const day = String(targetDate.getDate()).padStart(2, '0');
+    const hour = '09';
+    const minute = '00';
+
+    console.log(`요청 날짜: ${year}-${month}-${day} ${hour}:${minute}`); // 요청 날짜 확인
+
+    // getApiInfo 함수 호출 시 계산된 날짜 정보 전달
+    const apiInfo = await getApiInfo(placeNumber, year, month, day, hour, minute);
 
     if (apiInfo) {
         console.log('여기까진 정상 작동');
@@ -125,8 +168,8 @@ function updateHeader(apiInfo) {
     console.log(Object.keys(apiInfo).length === 0);
     if (apiInfo) {
         // API 정보가 있는 경우
-        const { HM, RN, WS } = apiInfo; // API 정보에서 값 추출
-        const TA = apiInfo.TA
+        const { TA, HM, RN, WS } = apiInfo; // API 정보에서 값 추출
+
         console.log(TA, HM, RN, WS);
         // header 내용 업데이트
         h1.innerText = document.getElementById('placeNumberSelect').options[document.getElementById('placeNumberSelect').selectedIndex].text; // 지역 이름으로 업데이트

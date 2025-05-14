@@ -222,6 +222,7 @@ function displayRecommendation(recommendation) {
 async function getNextOutfit(style, gender) {
     const recommendation = await getRecommendedOutfit(style, gender); // 새로운 조합을 가져오는 API 호출
     if (recommendation) {
+        console.log('추천된 옷:', recommendation);
         recommendations.push(recommendation); // 새로운 조합을 배열에 추가
         currentIndex++; // 인덱스를 증가
         displayRecommendation(recommendation); // 추천 결과 화면에 표시

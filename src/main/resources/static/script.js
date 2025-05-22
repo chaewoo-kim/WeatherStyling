@@ -168,12 +168,12 @@ function updateHeader(apiInfo) {
     console.log(Object.keys(apiInfo).length === 0);
     if (apiInfo) {
         // API 정보가 있는 경우
-        const { TA, HM, RN, WS } = apiInfo; // API 정보에서 값 추출
+        const { TA, ST, SKY, PREP } = apiInfo; // API 정보에서 값 추출
 
-        console.log(TA, HM, RN, WS);
+
         // header 내용 업데이트
         h1.innerText = document.getElementById('placeNumberSelect').options[document.getElementById('placeNumberSelect').selectedIndex].text; // 지역 이름으로 업데이트
-        p.innerText = `습도: ${HM}%, 강수확률: ${RN}%, 풍속: ${WS}m/s`; // 습도, 강수확률, 풍속 표시
+        p.innerText = `강수확률: ${ST}%, 하늘상태: ${SKY}, 강수유무: ${PREP}`; // 습도, 강수확률, 풍속 표시
         temperatureDiv.innerText = `${TA}°C`; // 온도 표시
     } else {
         // API 정보가 없는 경우

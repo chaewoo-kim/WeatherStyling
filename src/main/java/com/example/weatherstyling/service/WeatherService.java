@@ -2,6 +2,7 @@ package com.example.weatherstyling.service;
 
 import com.example.weatherstyling.api.JSONAPICall;
 
+import com.example.weatherstyling.api.JSONAPIShortCall;
 import com.example.weatherstyling.api.StyleList;
 import com.example.weatherstyling.api.WeatherRequest;
 import org.json.JSONObject;
@@ -14,14 +15,25 @@ import java.util.Map;
 public class WeatherService {
 
     private final JSONAPICall jsonAPICall;
+    private final JSONAPIShortCall jsonapiShortCall;
 
-    public WeatherService(JSONAPICall jsonAPICall) {
+    public WeatherService(JSONAPICall jsonAPICall, JSONAPIShortCall jsonapiShortCall) {
         this.jsonAPICall = jsonAPICall;
+        this.jsonapiShortCall = jsonapiShortCall;
     }
 
     public Map<String, String> getWeatherData(String info) {
         try {
             return jsonAPICall.callAPI(info);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Map<String, String> getShortWeatherData(String info) {
+        try {
+            return jsonapiShortCall.callAPI(info);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

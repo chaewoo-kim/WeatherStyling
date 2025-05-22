@@ -8,16 +8,18 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class WeatherRequest {
-    private String url_body = "https://apihub.kma.go.kr/api/typ01/url/kma_sfctm2.php?tm=";
+    private String url_body = "https://apihub.kma.go.kr/api/typ01/url/fct_afs_dl.php?";
     private String url_main = "";
 
     private String gender ="";
 
-    private String tm = "";
+    private String start_tm = "";
+    private String end_tm = "";
     private String year = "0";
     private String month = "0";
     private String day = "0";
-    private String hour = "0";
+    private String start_hour = "06";
+    private String end_hour = "18";
     private String minute = "0";
 
     private String placeNumber = "0";

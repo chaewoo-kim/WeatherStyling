@@ -89,6 +89,9 @@ async function callRecommendationAPI() {
     gender = sexSelect.value; // 선택된 성별 값 가져오기
     const placeNumber = placeNumberSelect.value;
 
+    recommendations = []; // 추천 결과 배열 초기화
+    currentIndex = -1;
+
     const selectedDayRadio = document.querySelector('input[name="day"]:checked');
     const selectedDayValue = selectedDayRadio ? selectedDayRadio.value : null;
 
@@ -169,12 +172,50 @@ function updateHeader(apiInfo) {
     if (apiInfo) {
         // API 정보가 있는 경우
         const { TA, ST, SKY, PREP } = apiInfo; // API 정보에서 값 추출
+        let weatherCondition = ''; // 날씨 상태 메시지
 
+        if (PREP === '0') {
+            // 강수 없음
+            switch (SKY) {
+                case 'DB01':
+                    weatherCondition = '맑음';
+                    break;
+                case 'DB02':
+                    weatherCondition = '구름 조금';
+                    break;
+                case 'DB03':
+                    weatherCondition = '구름 많음';
+                    break;
+                case 'DB04':
+                    weatherCondition = '흐림';
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            // 강수 있음
+            switch (PREP) {
+                case '1':
+                    weatherCondition = '비';
+                    break;
+                case '2':
+                    weatherCondition = '비/눈';
+                    break;
+                case '3':
+                    weatherCondition = '눈';
+                    break;
+                case '4':
+                    weatherCondition = '눈/비';
+                    break;
+                default:
+                    break;
+            }
+        }
 
         // header 내용 업데이트
         h1.innerText = document.getElementById('placeNumberSelect').options[document.getElementById('placeNumberSelect').selectedIndex].text; // 지역 이름으로 업데이트
-        p.innerText = `강수확률: ${ST}%, 하늘상태: ${SKY}, 강수유무: ${PREP}`; // 습도, 강수확률, 풍속 표시
-        temperatureDiv.innerText = `${TA}°C`; // 온도 표시
+        p.innerText = `강수확률: ${ST}%`; // 습도, 강수확률, 풍속 표시
+        temperatureDiv.innerText = `${weatherCondition}(아이콘으로 변경), ${TA}°C`; // 온도 표시
     } else {
         // API 정보가 없는 경우
         h1.innerText = '지역 정보를 가져올 수 없습니다.';
@@ -260,6 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const nextButton = document.getElementById('nextButton'); // 오른쪽 화살표 버튼
 
     if (recommendButton) {
+
         recommendButton.addEventListener('click', callRecommendationAPI); // 추천 받기 버튼 클릭 이벤트
     }
 

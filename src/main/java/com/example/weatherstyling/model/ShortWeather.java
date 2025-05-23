@@ -8,11 +8,11 @@ import lombok.Setter;
 import java.util.Date;
 
 @Entity
-@Table(name = "weather")
+@Table(name = "shortWeather")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Weather {
+public class ShortWeather {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public long id;
@@ -21,8 +21,8 @@ public class Weather {
     public String url;
 
     public String temperature;
-    public String humidity;
-    public String wind_speed;
-    public String rainfall;
+    public String st; //강수 확률
+    public String sky; //하늘 상태
+    public String prep; //강수 유무
 
 }

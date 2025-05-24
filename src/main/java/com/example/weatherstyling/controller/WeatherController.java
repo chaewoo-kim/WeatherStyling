@@ -1,14 +1,14 @@
 package com.example.weatherstyling.controller;
 
 import com.example.weatherstyling.WeatherStylingApplication;
-import com.example.weatherstyling.api.CustomerRequest;
-import com.example.weatherstyling.api.JSONAPICall;
-import com.example.weatherstyling.api.StyleList;
-import com.example.weatherstyling.api.WeatherRequest;
+import com.example.weatherstyling.api.*;
 import com.example.weatherstyling.service.WeatherService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -16,18 +16,22 @@ import org.springframework.web.bind.annotation.*;
 public class WeatherController {
 
     private final WeatherService weatherService;
+    private final JSONAPIShortCall jsonapiShortCall;
 
     @PostMapping("/getApiInfo")
-    public String getApiInfo(@RequestBody WeatherRequest request) {
+    public Map<String, String> getApiInfo(@RequestBody WeatherRequest request) {
 
-        request.setTm(request.getYear() + request.getMonth() + request.getDay() + request.getHour() + request.getMinute());
-        request.setUrl_main(request.getUrl_body() + request.getTm() + "&stn=" + request.getPlaceNumber() + "&" + request.getHelp() + "&authKey=" + request.getAuthKey());
-
-        return weatherService.getWeatherData(request.getUrl_main());
+        request.setStart_tm(request.getYear() + request.getMonth() + request.getDay() + request.getStart_hour());
+        request.setEnd_tm(request.getYear() + request.getMonth() + request.getDay() + request.getEnd_hour());
+        request.setUrl_main(request.getUrl_body() + "stn=" + request.getPlaceNumber() + "&tmfc1=" + request.getStart_tm() + "&tmfc2=" + request.getEnd_tm() + "&disp=0&" + request.getHelp() + "&authKey=" + request.getAuthKey());
+        System.out.println("url: "+request.getUrl_main());
+        return weatherService.getShortWeatherData(request.getUrl_main());
     }
 
-    @GetMapping("/outfit")
-    public StyleList getOutfit(@RequestBody CustomerRequest request) {
+
+    @PostMapping("/outfit")
+    public Map<String, String> getOutfit(@RequestBody CustomerRequest request) {
+
         return weatherService.getOutfitData(request.getStyle());
     }
 

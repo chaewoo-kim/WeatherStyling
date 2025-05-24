@@ -11,19 +11,29 @@ header {
     color: white;
     padding: 20px;
     text-align: center;
+    height: 230px; /* 고정 높이 */
+    box-sizing: border-box;
 }
 
-.temperature {
+header .temperature {
     font-size: 48px;
     font-weight: bold;
+}
+
+header .date {
+    margin-top: 10px;
+    font-size: 16px;
 }
 
 nav {
     display: flex;
     justify-content: center;
     margin: 20px 0;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
+nav select,
 nav button {
     margin: 0 10px;
     padding: 10px 20px;
@@ -64,17 +74,14 @@ nav button:hover {
 
 .card-container {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2열로 설정ㅇ*/
+    grid-template-columns: repeat(2, 1fr); /* 2열 그리드 */
     gap: 20px;
     justify-items: center;
     width: 100%;
 }
 
-
-
 .card {
-    width: 48%;
-    margin-bottom: 20px;
+    width: 100%;
     border: 1px solid #eee;
     border-radius: 5px;
     padding: 10px;
@@ -85,3 +92,11 @@ nav button:hover {
     max-width: 100%;
     border-radius: 5px;
 }
+.day-selector {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+

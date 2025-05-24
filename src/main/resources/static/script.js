@@ -139,39 +139,61 @@ function updateHeader(apiInfo) {
         temperatureDiv.innerText = '-°C';
     }
 }
+async function removeBgImage(imageUrl) {
+    const apiKey = 'H4Zdg6njJ9Z6NQHfAu8XgYL7'; // 반드시 발급받은 키 사용
+    const endpoint = 'https://api.remove.bg/v1.0/removebg';
+
+    const formData = new FormData();
+    formData.append('image_url', imageUrl);
+    formData.append('size', 'auto');
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'X-Api-Key': apiKey
+            },
+            body: formData
+        });
+
+        if (!response.ok) throw new Error('remove.bg 호출 실패');
+
+        const blob = await response.blob();
+        return URL.createObjectURL(blob); // 바로 <img src>에 사용 가능
+    } catch (err) {
+        console.error(err);
+        return imageUrl; // 실패 시 원본 그대로 사용
+    }
+}
 
 /**
  * 추천 결과를 카드 형태로 화면에 표시하는 함수
  * @param {object} recommendation 추천 의류 정보 (jacket, top, bottom, shoes 속성 포함)
  */
-function displayRecommendation(recommendation) {
-    const cardContainer = document.getElementById('recommendationCardContainer'); // 카드 컨테이너 요소 가져오기
-    cardContainer.innerHTML = ''; // 기존 카드 내용 초기화
+async function displayRecommendation(recommendation) {
+    const cardContainer = document.getElementById('recommendationCardContainer');
+    cardContainer.innerHTML = '';
 
     if (recommendation) {
-        // 추천 결과가 있는 경우
         const { top, bottom, jacket, shoes } = recommendation;
-        const topCard = document.createElement('div');
-        topCard.classList.add('card'); // card 클래스 추가
-        topCard.innerHTML = `<img src="${top}" alt="상의">`; // 이미지 설정
-        cardContainer.appendChild(topCard); // 카드 컨테이너에 카드 추가
+        const items = [
+            { src: top, alt: '상의' },
+            { src: bottom, alt: '하의' },
+            { src: jacket, alt: '재킷' },
+            { src: shoes, alt: '신발' }
+        ];
 
-        const bottomCard = document.createElement('div');
-        bottomCard.classList.add('card');
-        bottomCard.innerHTML = `<img src="${bottom}" alt="하의">`;
-        cardContainer.appendChild(bottomCard);
+        // remove.bg 병렬 호출
+        const promises = items.map(item => removeBgImage(item.src));
+        const bgRemovedUrls = await Promise.all(promises);
 
-        const jacketCard = document.createElement('div');
-        jacketCard.classList.add('card');
-        jacketCard.innerHTML = `<img src="${jacket}" alt="재킷">`;
-        cardContainer.appendChild(jacketCard);
-
-        const shoesCard = document.createElement('div');
-        shoesCard.classList.add('card');
-        shoesCard.innerHTML = `<img src="${shoes}" alt="신발">`;
-        cardContainer.appendChild(shoesCard);
+        items.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.innerHTML = `<img src="${bgRemovedUrls[idx]}" alt="${item.alt}">`;
+            cardContainer.appendChild(card);
+        });
     } else {
-        // 추천 결과가 없는 경우
         cardContainer.innerText = '추천된 옷 정보가 없습니다.';
     }
 }

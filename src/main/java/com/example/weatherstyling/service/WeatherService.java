@@ -1,10 +1,7 @@
 package com.example.weatherstyling.service;
 
-import com.example.weatherstyling.api.JSONAPICall;
+import com.example.weatherstyling.api.*;
 
-import com.example.weatherstyling.api.JSONAPIShortCall;
-import com.example.weatherstyling.api.StyleList;
-import com.example.weatherstyling.api.WeatherRequest;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +13,12 @@ public class WeatherService {
 
     private final JSONAPICall jsonAPICall;
     private final JSONAPIShortCall jsonapiShortCall;
+    public final JSONAPILongCall jsonapiLongCall;
 
-    public WeatherService(JSONAPICall jsonAPICall, JSONAPIShortCall jsonapiShortCall) {
+    public WeatherService(JSONAPICall jsonAPICall, JSONAPIShortCall jsonapiShortCall, JSONAPILongCall jsonapiLongCall) {
         this.jsonAPICall = jsonAPICall;
         this.jsonapiShortCall = jsonapiShortCall;
+        this.jsonapiLongCall = jsonapiLongCall;
     }
 
     public Map<String, String> getWeatherData(String info) {
@@ -34,6 +33,15 @@ public class WeatherService {
     public Map<String, String> getShortWeatherData(String info) {
         try {
             return jsonapiShortCall.callAPI(info);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Map<String, String> getLongWeatherData(String info) {
+        try {
+            return jsonapiLongCall.callAPI(info);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class WeatherRequest {
-    private String url_body = "https://apihub.kma.go.kr/api/typ01/url/fct_afs_dl.php?";
+    private String url_body = "https://apihub.kma.go.kr/api/typ01/url/";
     private String url_main = "";
 
     private String gender ="";

@@ -1,7 +1,9 @@
 package com.example.weatherstyling.api;
 
+import com.example.weatherstyling.model.LongWeather;
 import com.example.weatherstyling.model.ShortWeather;
 import com.example.weatherstyling.model.Weather;
+import com.example.weatherstyling.repository.LongWeatherRepository;
 import com.example.weatherstyling.repository.ShortWeatherRepository;
 import com.example.weatherstyling.repository.WeatherRepository;
 import lombok.Getter;
@@ -57,11 +59,13 @@ public class StringParser {
 
     private final WeatherRepository weatherRepository;
     private final ShortWeatherRepository shortWeatherRepository;
+    private final LongWeatherRepository longWeatherRepository;
 
     public StringParser(String info, WeatherRepository weatherRepository, String url) {
         this.info = info;
         this.weatherRepository = weatherRepository;
         this.shortWeatherRepository = null;
+        this.longWeatherRepository = null;
         this.url = url;
         this.column = "YYMMDDHHMI STN WD WS GST_WD GST_WS GST_TM PA PS PT PR TA TD HM PV RN RN_DAY RN_JUN RN_INT SD_HR3 SD_DAY SD_TOT WC WP WW CA_TOT CA_MID CH_MIN CT CT_TOP CT_MID CT_LOW VS SS SI ST_GD TS TE_005 TE_01 TE_02 TE_03 ST_SEA WH BF IR IX";
         columns = column.split(" ");
@@ -72,8 +76,20 @@ public class StringParser {
         this.info = info;
         this.shortWeatherRepository = shortWeatherRepository;
         this.weatherRepository = null;
+        this.longWeatherRepository = null;
         this.url = url;
         this.column = "REG_ID TM_FC TM_EF MOD NE STN C MAN_ID MAN_FC W1 T W2 TA ST SKY PREP WF";
+        columns = column.split(" ");
+        columnLength = column.trim().split("\\s+").length;
+    }
+
+    public StringParser(String info, LongWeatherRepository longWeatherRepository, String url) {
+        this.info = info;
+        this.longWeatherRepository = longWeatherRepository;
+        this.weatherRepository = null;
+        this.shortWeatherRepository = null;
+        this.url = url;
+        this.column = "REG_ID TM_FC TM_EF MOD STN C SKY PRE CONF WF RN_ST";
         columns = column.split(" ");
         columnLength = column.trim().split("\\s+").length;
     }
@@ -105,13 +121,24 @@ public class StringParser {
                 System.out.println("12자리 숫자 찾을 수 없음");
             }
 
-        } else {
+        } else if (shortWeatherRepository != null) {
             String target = "WF";
             int index = info.indexOf(target);
             String data = info.substring(index+1);
             System.out.println("data : "+data);
 
             String result = data.replaceAll("\\s+", " "); //많은 공백을 하나의 공백으로 변경
+
+            for (int i = 0; i < columnLength; i++) {
+                numbers = result.split("\\s+");
+            }
+        } else if (longWeatherRepository != null) {
+            String target = "RN_ST";
+            int index = info.indexOf(target);
+            String data = info.substring(index+1);
+            System.out.println("data : " + data);
+
+            String result = data.replaceAll("\\s+", " ");
 
             for (int i = 0; i < columnLength; i++) {
                 numbers = result.split("\\s+");
@@ -140,7 +167,7 @@ public class StringParser {
             weatherRepository.save(weather);
 
             return map;
-        } else {
+        } else if (shortWeatherRepository != null) {
             ShortWeather shortWeather = new ShortWeather();
             shortWeather.setUrl(url);
             shortWeather.setTemperature(map.get("TA"));
@@ -151,7 +178,20 @@ public class StringParser {
             shortWeatherRepository.save(shortWeather);
 
             return map;
+        } else if (longWeatherRepository != null) {
+            LongWeather longWeather = new LongWeather();
+            longWeather.setUrl(url);
+            longWeather.setPrep(map.get("PRE"));
+            longWeather.setSky(map.get("SKY"));
+            longWeather.setSt(map.get("RN_ST"));
+            //temperature만 하면 됨
+
+            longWeatherRepository.save(longWeather);
+
+            return map;
         }
+
+        return null;
     }
 
     public JSONObject returnJsonObject(Map map) {

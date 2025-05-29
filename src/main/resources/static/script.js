@@ -205,7 +205,7 @@ function updateHeader(apiInfo) {
                     weatherCondition = '눈';
                     break;
                 case '4':
-                    weatherCondition = '눈/비';
+                    weatherCondition = '소나기';
                     break;
                 default:
                     break;

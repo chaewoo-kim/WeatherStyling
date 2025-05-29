@@ -38,8 +38,10 @@ public class StringParser {
 
     //JSONAPICall에서 사용하는 변수들
     String info; //기상청 API로부터 받은 정리되지 않은 기상 정보 문자열
+    String tempInfo; //기상청 중기 기온 예특보 API로부터 받은 값
     String url;
     String column;
+    String temperature;
 
     String[] columns;
     int columnLength; //열 종류의 수
@@ -83,8 +85,9 @@ public class StringParser {
         columnLength = column.trim().split("\\s+").length;
     }
 
-    public StringParser(String info, LongWeatherRepository longWeatherRepository, String url) {
+    public StringParser(String info, LongWeatherRepository longWeatherRepository, String url, String tempInfo) {
         this.info = info;
+        this.tempInfo = tempInfo;
         this.longWeatherRepository = longWeatherRepository;
         this.weatherRepository = null;
         this.shortWeatherRepository = null;
@@ -93,7 +96,6 @@ public class StringParser {
         columns = column.split(" ");
         columnLength = column.trim().split("\\s+").length;
     }
-
 
 
 
@@ -134,25 +136,46 @@ public class StringParser {
             }
         } else if (longWeatherRepository != null) {
             String target = "RN_ST";
-            int index = info.indexOf(target);
-            String data = info.substring(index+1);
-            System.out.println("data : " + data);
 
-            String result = data.replaceAll("\\s+", " ");
+            System.out.println("info: " + info);
+            String data = info.replaceAll("[\\\\]", " ")
+                    .replaceAll("\"", " ")
+                    .replaceAll("RN_ST", "RN_ST ")
+                    .replaceAll("\\s+", " ");
+
+            String tempData = tempInfo.replaceAll("\\s+", " ");
+
+            int index = data.indexOf(target);
+
+            System.out.println("data: " + data);
+            System.out.println("index: " + index);
+            String output = data.substring(index+6);
+            System.out.println("output : " + output);
+
+            String [] parts = output.split("\\s+");
+            String [] tempParts = tempData.split("\\s+");
+            String rn_st = parts[10];
+            temperature = String.valueOf((Integer.parseInt(tempParts[18]) + Integer.parseInt(tempParts[19])) / 2);
+            parts[10] = rn_st.substring(0,2);
 
             for (int i = 0; i < columnLength; i++) {
-                numbers = result.split("\\s+");
+                numbers = parts;
             }
         }
     }
+
 
     public Map<String, String> makeMap() {
         // Map 자료구조를 사용해 열 값에 맞는 값들을 넣을 것임
         // key : column, value : data
         Map<String, String> map = new HashMap<>();
-        for (int i = 0; i < columnLength; i++) {
+        System.out.println("columnLength: " + columnLength);
+        try {for (int i = 0; i < columnLength; i++) {
             map.put(columns[i], numbers[i]);
+        }} catch (Exception e) {
+            e.printStackTrace();
         }
+
         System.out.println("map : " + map);
 
         if (weatherRepository != null) {
@@ -184,11 +207,18 @@ public class StringParser {
             longWeather.setPrep(map.get("PRE"));
             longWeather.setSky(map.get("SKY"));
             longWeather.setSt(map.get("RN_ST"));
-            //temperature만 하면 됨
+            longWeather.setTemperature(temperature);
 
             longWeatherRepository.save(longWeather);
 
-            return map;
+            //map 자료형 다시 만들어서 정확한 이름으로 보내야함
+            Map<String, String> newMap = new HashMap<>();
+            newMap.put("TA", temperature);
+            newMap.put("ST", map.get("RN_ST"));
+            newMap.put("SKY", map.get("SKY"));
+            newMap.put("PREP", map.get("PRE"));
+
+            return newMap;
         }
 
         return null;

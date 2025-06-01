@@ -168,6 +168,7 @@ function updateHeader(apiInfo) {
     const h1 = header.querySelector('h1'); // h1 요소 가져오기
     const p = header.querySelector('p'); // p 요소 가져오기
     const temperatureDiv = header.querySelector('.temperature'); // temperature div 요소 가져오기
+    const weatherIconContainer = header.querySelector('.weather-icon-container')
     console.log(Object.keys(apiInfo).length === 0);
     if (apiInfo) {
         // API 정보가 있는 경우
@@ -178,16 +179,16 @@ function updateHeader(apiInfo) {
             // 강수 없음
             switch (SKY) {
                 case 'DB01':
-                    weatherCondition = '맑음';
+                    weatherCondition = '/images.weather_icon/sky_01_sun.png';
                     break;
                 case 'DB02':
-                    weatherCondition = '구름 조금';
+                    weatherCondition = '/images.weather_icon/sky_02_little_cloud.png';
                     break;
                 case 'DB03':
-                    weatherCondition = '구름 많음';
+                    weatherCondition = '/images.weather_icon/sky_03_many_clouds.png';
                     break;
                 case 'DB04':
-                    weatherCondition = '흐림';
+                    weatherCondition = '/images.weather_icon/sky_04_blur.png';
                     break;
                 default:
                     break;
@@ -196,16 +197,16 @@ function updateHeader(apiInfo) {
             // 강수 있음
             switch (PREP) {
                 case '1':
-                    weatherCondition = '비';
+                    weatherCondition = '/images.weather_icon/PREP_01_rain.png';
                     break;
                 case '2':
-                    weatherCondition = '비/눈';
+                    weatherCondition = '/images.weather_icon/PREP_02_snow_and_rain.png';
                     break;
                 case '3':
-                    weatherCondition = '눈';
+                    weatherCondition = '/images.weather_icon/PREP_03_snow.png';
                     break;
                 case '4':
-                    weatherCondition = '눈/비';
+                    weatherCondition = '/images.weather_icon/PREP_04_shower.png';
                     break;
                 default:
                     break;
@@ -213,9 +214,14 @@ function updateHeader(apiInfo) {
         }
 
         // header 내용 업데이트
+        const iconImg = document.createElement('img');
+        iconImg.src = weatherCondition;
+        iconImg.alt = '날씨 상태 아이콘';
+        weatherIconContainer.innerHTML = ''; // 이전 아이콘 제거 (중요)
+        weatherIconContainer.appendChild(iconImg); // 아이콘 컨테이너에 추가
         h1.innerText = document.getElementById('placeNumberSelect').options[document.getElementById('placeNumberSelect').selectedIndex].text; // 지역 이름으로 업데이트
         p.innerText = `강수확률: ${ST}%`; // 습도, 강수확률, 풍속 표시
-        temperatureDiv.innerText = `${weatherCondition}(아이콘으로 변경), ${TA}°C`; // 온도 표시
+        temperatureDiv.innerText = `${TA}°C`; // 온도 표시
     } else {
         // API 정보가 없는 경우
         h1.innerText = '지역 정보를 가져올 수 없습니다.';

@@ -8,9 +8,7 @@ import java.util.Optional;
 
 public interface WeatherRepository extends JpaRepository<Weather, Long> {
 
-    boolean existsByUrl(String url);
 
-    Optional<Weather> findByUrl(String url);
 
 
 }

@@ -67,13 +67,13 @@ public class WeatherController {
             return weatherService.getShortWeatherData(request.getUrl_main());
         } else {
             //중기 예보
-            request.setUrl_main(request.getUrl_body() + "fct_afs_wl.php?" + "&tmfc1=" + formattedToday + "06" + "&tmfc2=" + formattedToday + "18&tmef1=" + request.getStart_tm() + "&tmef2=" + request.getEnd_tm() + "&disp=0&" + request.getHelp() + "&authKey=" + request.getAuthKey());
+            request.setUrl_main(request.getUrl_body() + "fct_afs_wl.php?" + "&reg=" + request.getReg() + "&tmfc1=" + formattedToday + "06" + "&tmfc2=" + formattedToday + "18&tmef1=" + request.getStart_tm() + "&tmef2=" + request.getEnd_tm() + "&disp=0&" + request.getHelp() + "&authKey=" + request.getAuthKey());
             String tempURL = "";
-            tempURL = request.getUrl_body() + "fct_afs_wc.php?" + "&tmfc1=" + formattedToday + "06" + "&tmfc2=" + formattedToday + "18&tmef1=" + request.getStart_tm() + "&tmef2=" + request.getEnd_tm() + "&disp=0&" + request.getHelp() + "&authKey=" + request.getAuthKey();
+            tempURL = request.getUrl_body() + "fct_afs_wc.php?" + "&reg=" + request.getReg() + "&tmfc1=" + formattedToday + "06" + "&tmfc2=" + formattedToday + "18&tmef1=" + request.getStart_tm() + "&tmef2=" + request.getEnd_tm() + "&disp=0&" + request.getHelp() + "&authKey=" + request.getAuthKey();
             System.out.println("url : " + request.getUrl_main());
             System.out.println("tmep URL : " + tempURL);
 
-            return weatherService.getLongWeatherData(request.getUrl_main(), tempURL);
+            return weatherService.getLongWeatherData(request.getUrl_main(), tempURL, request.getReg());
         }
 
     }
@@ -82,7 +82,7 @@ public class WeatherController {
     @PostMapping("/outfit")
     public Map<String, String> getOutfit(@RequestBody CustomerRequest request) {
 
-        return weatherService.getOutfitData(request.getStyle());
+        return weatherService.getOutfitData(request.getStyle(), request.getGender());
     }
 
 }

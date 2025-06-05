@@ -39,9 +39,9 @@ public class WeatherService {
         }
     }
 
-    public Map<String, String> getLongWeatherData(String info) {
+    public Map<String, String> getLongWeatherData(String info, String tempURL) {
         try {
-            return jsonapiLongCall.callAPI(info);
+            return jsonapiLongCall.callAPI(info, tempURL);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

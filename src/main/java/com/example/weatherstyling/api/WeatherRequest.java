@@ -23,6 +23,7 @@ public class WeatherRequest {
     private String minute = "0";
 
     private String placeNumber = "0";
+    private String reg = "0";
 
     private String help = "help=0";
 

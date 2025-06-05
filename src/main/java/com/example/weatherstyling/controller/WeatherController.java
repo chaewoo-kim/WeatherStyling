@@ -12,6 +12,7 @@ import org.springframework.cglib.core.Local;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.time.LocalDate;
 
@@ -42,22 +43,37 @@ public class WeatherController {
             longWeatherRepository.deleteAll();
         }
 
+        String providedDateStr = request.getYear() + request.getMonth() + request.getDay();
 
         request.setStart_tm(request.getYear() + request.getMonth() + request.getDay() + request.getStart_hour());
         request.setEnd_tm(request.getYear() + request.getMonth() + request.getDay() + request.getEnd_hour());
 
-        if (Integer.parseInt(formattedToday) + 3 > Integer.parseInt(request.getYear() + request.getMonth() + request.getDay())) {
+        LocalDate providedDate = LocalDate.parse(providedDateStr, formatter);
+        LocalDate today = LocalDate.now();
+
+        long daysBetween = ChronoUnit.DAYS.between(today, providedDate);
+        System.out.println(providedDate);
+        System.out.println(today);
+        System.out.println(daysBetween);
+
+
+        if (daysBetween < 4) {
             //단기 예보
             System.out.println(formattedToday);
             System.out.println(request.getYear() + request.getMonth() + request.getDay());
-            request.setUrl_main(request.getUrl_body() + "fct_afs_dl.php?" + "stn=" + request.getPlaceNumber() + "&tmfc1=" + request.getStart_tm() + "&tmfc2=" + request.getEnd_tm() + "&disp=0&" + request.getHelp() + "&authKey=" + request.getAuthKey());
+            request.setUrl_main(request.getUrl_body() + "fct_afs_dl.php?" + "&tmef1=" + request.getStart_tm() + "&tmef2=" + request.getEnd_tm() + "&disp=0&" + request.getHelp() + "&authKey=" + request.getAuthKey());
             System.out.println("url: "+request.getUrl_main());
+
             return weatherService.getShortWeatherData(request.getUrl_main());
         } else {
             //중기 예보
-            request.setUrl_main(request.getUrl_body() + "fct_afs_wl.php?" + "stn=" + request.getPlaceNumber() + "&tmfc1=" + formattedToday + "06" + "&tmfc2=" + formattedToday + "18&tmef1=" + request.getStart_tm() + "&tmef2=" + request.getEnd_tm() + "&disp=0&" + request.getHelp() + "&authKey=" + request.getAuthKey());
+            request.setUrl_main(request.getUrl_body() + "fct_afs_wl.php?" + "&reg=" + request.getReg() + "&tmfc1=" + formattedToday + "06" + "&tmfc2=" + formattedToday + "18&tmef1=" + request.getStart_tm() + "&tmef2=" + request.getEnd_tm() + "&disp=0&" + request.getHelp() + "&authKey=" + request.getAuthKey());
+            String tempURL = "";
+            tempURL = request.getUrl_body() + "fct_afs_wc.php?" + "&reg=" + request.getReg() + "&tmfc1=" + formattedToday + "06" + "&tmfc2=" + formattedToday + "18&tmef1=" + request.getStart_tm() + "&tmef2=" + request.getEnd_tm() + "&disp=0&" + request.getHelp() + "&authKey=" + request.getAuthKey();
             System.out.println("url : " + request.getUrl_main());
-            return weatherService.getLongWeatherData(request.getUrl_main());
+            System.out.println("tmep URL : " + tempURL);
+
+            return weatherService.getLongWeatherData(request.getUrl_main(), tempURL, request.getReg());
         }
 
     }
@@ -66,7 +82,7 @@ public class WeatherController {
     @PostMapping("/outfit")
     public Map<String, String> getOutfit(@RequestBody CustomerRequest request) {
 
-        return weatherService.getOutfitData(request.getStyle());
+        return weatherService.getOutfitData(request.getStyle(), request.getGender());
     }
 
 }

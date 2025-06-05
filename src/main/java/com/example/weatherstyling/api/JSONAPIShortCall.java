@@ -20,6 +20,7 @@ import java.util.Optional;
 public class JSONAPIShortCall {
 
     private final ShortWeatherRepository shortWeatherRepository;
+    private final WeatherRepository weatherRepository;
 
     public Map<String, String> callAPI(String info) throws Exception {
 
@@ -43,6 +44,13 @@ public class JSONAPIShortCall {
 
             System.out.println("값 DB에 존재함");
             System.out.println(map);
+
+            Weather weather = weatherRepository.findById(1L).get();
+            weather.setTemperature(shortWeather.getTemperature());
+            weather.setSky(shortWeather.getSky());
+            weather.setSt(shortWeather.getSt());
+            weather.setPrep(shortWeather.getPrep());
+            weatherRepository.save(weather);
 
             return map;
 
@@ -81,7 +89,7 @@ public class JSONAPIShortCall {
             // 응답을 출력합니다.
             System.out.println(prettyJson);
 
-            StringParser stringParser = new StringParser(prettyJson, shortWeatherRepository, info);
+            StringParser stringParser = new StringParser(prettyJson, shortWeatherRepository, info, weatherRepository);
             stringParser.stringParser();
 
             System.out.println("값 DB에 존재하지 않음");

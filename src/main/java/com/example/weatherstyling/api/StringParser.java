@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Getter
+@RequiredArgsConstructor
 public class StringParser {
 
     //해당 클래스 사용 방법
@@ -48,17 +50,6 @@ public class StringParser {
     String numData = ""; //문자열로 저장된 숫자 데이터
     String [] numbers = new String[columnLength]; //숫자를 string으로 순서대로 저장
 
-
-//    //JSONAPIShortCall에서 사용하는 변수들
-//    String shortInfo;
-//    String shortUrl;
-//
-//    String[] shortColumns = shortColumn.split(" ");
-//    int shortColumnLength = shortColumn.trim().split("\\s+").length; //shortColumn의 열 종류의 수
-//    String shortNumData = ""; //문자열로 저장된 숫자 데이터
-//    String[] shortNumbers = new String[shortColumnLength];
-
-
     private final WeatherRepository weatherRepository;
     private final ShortWeatherRepository shortWeatherRepository;
     private final LongWeatherRepository longWeatherRepository;
@@ -74,10 +65,10 @@ public class StringParser {
         columnLength = column.trim().split("\\s+").length;
     }
 
-    public StringParser(String info, ShortWeatherRepository shortWeatherRepository, String url) {
+    public StringParser(String info, ShortWeatherRepository shortWeatherRepository, String url, WeatherRepository weatherRepository) {
         this.info = info;
+        this.weatherRepository = weatherRepository;
         this.shortWeatherRepository = shortWeatherRepository;
-        this.weatherRepository = null;
         this.longWeatherRepository = null;
         this.url = url;
         this.column = "REG_ID TM_FC TM_EF MOD NE STN C MAN_ID MAN_FC W1 T W2 TA ST SKY PREP WF";
@@ -85,11 +76,11 @@ public class StringParser {
         columnLength = column.trim().split("\\s+").length;
     }
 
-    public StringParser(String info, LongWeatherRepository longWeatherRepository, String url, String tempInfo) {
+    public StringParser(String info, LongWeatherRepository longWeatherRepository, String url, String tempInfo, WeatherRepository weatherRepository) {
         this.info = info;
         this.tempInfo = tempInfo;
+        this.weatherRepository = weatherRepository;
         this.longWeatherRepository = longWeatherRepository;
-        this.weatherRepository = null;
         this.shortWeatherRepository = null;
         this.url = url;
         this.column = "REG_ID TM_FC TM_EF MOD STN C SKY PRE CONF WF RN_ST";
@@ -102,28 +93,7 @@ public class StringParser {
     //string 분할
     public void stringParser() {
 
-        if (weatherRepository != null) {
-            //YYMMDDHHMI부터 끝까지 string 분할
-            //앞 의미 없는 부분 날림
-            String target = "YYMMDDHHMI";
-            int index = info.indexOf(target);
-            String data = info.substring(index); //YYMMDDHHMI부터 끝까지 저장
-
-            //데이터 부분만 남기기
-            Pattern pattern = Pattern.compile("\\d{12}");
-            Matcher matcher = pattern.matcher(data);
-
-            if (matcher.find()) {
-                int startIndex = matcher.start();
-                numData = data.substring(startIndex);
-                numbers = numData.split("\\s+");
-                System.out.println(Arrays.toString(numbers));
-                System.out.println(numbers.length);
-            } else {
-                System.out.println("12자리 숫자 찾을 수 없음");
-            }
-
-        } else if (shortWeatherRepository != null) {
+        if (shortWeatherRepository != null) {
             String target = "WF";
             int index = info.indexOf(target);
             String data = info.substring(index+1);
@@ -178,19 +148,7 @@ public class StringParser {
 
         System.out.println("map : " + map);
 
-        if (weatherRepository != null) {
-            //필요한 값 DB에 저장
-            Weather weather = new Weather();
-            weather.setUrl(url);
-            weather.setHumidity(map.get("HM"));
-            // weather.setRainfall(map.get("RN")); -> 이건 아직 없음. API 새로 뚫어야 함
-            weather.setTemperature(map.get("TA"));
-            weather.setWind_speed(map.get("WS"));
-
-            weatherRepository.save(weather);
-
-            return map;
-        } else if (shortWeatherRepository != null) {
+        if (shortWeatherRepository != null) {
             ShortWeather shortWeather = new ShortWeather();
             shortWeather.setUrl(url);
             shortWeather.setTemperature(map.get("TA"));
@@ -199,6 +157,13 @@ public class StringParser {
             shortWeather.setPrep(map.get("PREP"));
 
             shortWeatherRepository.save(shortWeather);
+
+            Weather weather = weatherRepository.findById(1L).get();
+            weather.setTemperature(shortWeather.getTemperature());
+            weather.setSky(shortWeather.getSky());
+            weather.setSt(shortWeather.getSt());
+            weather.setPrep(shortWeather.getPrep());
+            weatherRepository.save(weather);
 
             return map;
         } else if (longWeatherRepository != null) {
@@ -217,6 +182,13 @@ public class StringParser {
             newMap.put("ST", map.get("RN_ST"));
             newMap.put("SKY", map.get("SKY"));
             newMap.put("PREP", map.get("PRE"));
+
+            Weather weather = weatherRepository.findById(1L).get();
+            weather.setTemperature(longWeather.getTemperature());
+            weather.setSky(longWeather.getSky());
+            weather.setSt(longWeather.getSt());
+            weather.setPrep(longWeather.getPrep());
+            weatherRepository.save(weather);
 
             return newMap;
         }

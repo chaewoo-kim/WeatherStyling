@@ -36,6 +36,7 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok") //Lombok이 compile 될 때 적용되도록 추가
 	implementation 'org.json:json:20240303' //json 객체 사용하기 위해 추가
 
+	implementation files('/opt/homebrew/Caskroom/weka/3.8.6/weka-3.8.6.app/Contents/app/weka.jar')
 }
 
 tasks.named('test') {

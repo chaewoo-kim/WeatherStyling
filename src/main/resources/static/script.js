@@ -1,148 +1,233 @@
 /**
  * 특정 지역 번호에 대한 API 정보를 가져오는 함수
  * @param {string} placeNumber 지역 번호
+ * @param {string} year
+ * @param {string} month
+ * @param {string} day
+ * @param {string} hour
+ * @param {string} minute
+ * @param {string} regCode (선택)
  * @returns {Promise<object|null>} API 정보 (성공 시) 또는 null (실패 시)
  */
-async function getApiInfo(placeNumber) {
+async function getApiInfo(placeNumber, year, month, day, hour, minute, regCode) {
     const url = '/api/getApiInfo'; // 백엔드 API 엔드포인트
-
-    const now = new Date(); // 현재 날짜 및 시간 가져오기
-    const year = now.getFullYear().toString(); // (4자리)
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // (2자리, 0으로 채움)
-    const day = String(now.getDate()).padStart(2, '0');
-    const hour = String(now.getHours()).padStart(2, '0');
-    const minute = String(now.getMinutes()).padStart(2, '0');
-
     const requestBody = {
         placeNumber: placeNumber,
         year: year,
         month: month,
         day: day,
         hour: hour,
-        minute: minute,
+        minute: minute
     };
+    // regCode가 있으면 추가
+    if (regCode) requestBody.reg = regCode;
 
     try {
         const response = await fetch(url, {
-            method: 'POST', // POST 요청 사용
-            headers: {
-                'Content-Type': 'application/json', // JSON 형식으로 데이터 전송
-            },
-            body: JSON.stringify(requestBody), // 요청 body에 JSON 데이터 담기
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
         });
-
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`); // HTTP 에러 발생 시 에러 던지기
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-
-        const data = await response.json(); // 응답 데이터를 JSON 형태로 파싱
-        return data; // API 정보 반환
+        return await response.json();
     } catch (error) {
-        console.error('API 호출 실패:', error);
-        return null; // 에러 발생 시 null 반환 또는 에러 처리
+        console.error('getApiInfo 호출 실패:', error);
+        return null;
     }
 }
 
-/**
- * 스타일과 성별에 따른 추천 의류 정보를 가져오는 함수
- * @param {string} style 스타일 (ex: 캐주얼, 스트릿, 데이트)
- * @param {string} gender 성별 (ex: 여성, 남성)
- * @returns {Promise<object|null>} 추천 의류 정보 (성공 시) 또는 null (실패 시)
- */
 async function getRecommendedOutfit(style, gender) {
-    const url = '/api/outfit'; // 백엔드 API 엔드포인트
-    const requestBody = {
-        style: style,
-        gender: gender,
-    };
-
+    const url = '/api/outfit';
+    const requestBody = { style, gender };
     try {
         const response = await fetch(url, {
-            method: 'GET', // POST 요청 사용
-            headers: {
-                'Content-Type': 'application/json', // JSON 형식으로 데이터 전송
-            },
-            body: JSON.stringify(requestBody), // 요청 body에 JSON 데이터 담기
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
         });
-
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`); // HTTP 에러 발생 시 에러 던지기
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-
-        const data = await response.json(); // 응답 데이터를 JSON 형태로 파싱
-        return data; // 추천된 옷 정보 반환
+        return await response.json();
     } catch (error) {
-        console.error('API 호출 실패:', error);
-        return null; // 에러 발생 시 null 반환 또는 에러 처리
+        console.error('outfit 호출 실패:', error);
+        return null;
     }
 }
 
-/**
- * 추천 API를 호출하고 결과를 화면에 표시하는 함수
- */
+let recommendations = [];
+let currentIndex = -1;
+let style, gender;
+
+const dayValueMap = {"sun": 0, "mon": 1, "tue": 2, "wed": 3, "thu": 4, "fri": 5, "sat": 6};
+
 async function callRecommendationAPI() {
-    const styleSelect = document.getElementById('styleSelect'); // 스타일 선택 select 요소 가져오기
-    const sexSelect = document.getElementById('sexSelect'); // 성별 선택 select 요소 가져오기
-    const style = styleSelect.value; // 선택된 스타일 값 가져오기
-    const gender = sexSelect.value; // 선택된 성별 값 가져오기
+    const styleSelect = document.getElementById('styleSelect');
+    const sexSelect = document.getElementById('sexSelect');
+    const placeNumberSelect = document.getElementById('placeNumberSelect');
+    const selectedOption = placeNumberSelect.options[placeNumberSelect.selectedIndex];
+    const placeNumber = selectedOption.value;
+    const regCode = selectedOption.getAttribute('data-reg'); // ★ 추가: reg 코드 추출
 
-    const recommendation = await getRecommendedOutfit(style, gender); // 추천 API 호출
+    style = styleSelect.value;
+    gender = sexSelect.value;
+
+    recommendations = [];
+    currentIndex = -1;
+
+    const selectedDayRadio = document.querySelector('input[name="day"]:checked');
+    const selectedDayValue = selectedDayRadio ? selectedDayRadio.value : null;
+
+    let targetDate = new Date();
+    if (selectedDayValue) {
+        const currentDayOfWeek = targetDate.getDay();
+        const selectedDayOfWeek = dayValueMap[selectedDayValue];
+        if (selectedDayOfWeek !== undefined) {
+            let diff = selectedDayOfWeek - currentDayOfWeek;
+            if (diff < 0) diff += 7;
+            targetDate.setDate(targetDate.getDate() + diff);
+        }
+    }
+
+    const year = targetDate.getFullYear().toString();
+    const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const day = String(targetDate.getDate()).padStart(2, '0');
+    const hour = '09';
+    const minute = '00';
+
+    // ★ regCode까지 포함해서 전달
+    const apiInfo = await getApiInfo(placeNumber, year, month, day, hour, minute, regCode);
+
+    if (apiInfo) {
+        updateHeader(apiInfo);
+    }
+
+    const recommendation = await getRecommendedOutfit(style, gender);
 
     if (recommendation) {
-        console.log('추천된 옷:', recommendation);
-        displayRecommendation(recommendation); // 추천 결과 화면에 표시
-    } else {
-        console.log('추천 실패');
+        recommendations.push(recommendation);
+        currentIndex = recommendations.length - 1;
+        displayRecommendation(recommendation);
     }
 }
 
-/**
- * 추천 결과를 카드 형태로 화면에 표시하는 함수
- * @param {object} recommendation 추천 의류 정보 (jacket, top, bottom, shoes 속성 포함)
- */
-function displayRecommendation(recommendation) {
-    const cardContainer = document.getElementById('recommendationCardContainer'); // 카드 컨테이너 요소 가져오기
-    cardContainer.innerHTML = ''; // 기존 카드 내용 초기화
-
-    if (recommendation) {
-        // 추천 결과가 있는 경우
-        const topCard = document.createElement('div');
-        topCard.classList.add('card'); // card 클래스 추가
-        topCard.innerHTML = `<img src="${recommendation.top}" alt="상의">`; // 이미지 설정
-        cardContainer.appendChild(topCard); // 카드 컨테이너에 카드 추가
-
-        const bottomCard = document.createElement('div');
-        bottomCard.classList.add('card');
-        bottomCard.innerHTML = `<img src="${recommendation.bottom}" alt="하의">`;
-        cardContainer.appendChild(bottomCard);
-
-        const jacketCard = document.createElement('div');
-        jacketCard.classList.add('card');
-        jacketCard.innerHTML = `<img src="${recommendation.jacket}" alt="재킷">`;
-        cardContainer.appendChild(jacketCard);
-
-        const shoesCard = document.createElement('div');
-        shoesCard.classList.add('card');
-        shoesCard.innerHTML = `<img src="${recommendation.shoes}" alt="신발">`;
-        cardContainer.appendChild(shoesCard);
+function updateHeader(apiInfo) {
+    const header = document.querySelector('header');
+    const h1 = header.querySelector('h1');
+    const p = header.querySelector('p');
+    const temperatureDiv = header.querySelector('.temperature');
+    if (apiInfo) {
+        const { TA, ST, SKY, PREP } = apiInfo;
+        let weatherCondition = '';
+        if (PREP === '0') {
+            switch (SKY) {
+                case 'DB01': weatherCondition = '맑음'; break;
+                case 'DB02': weatherCondition = '구름 조금'; break;
+                case 'DB03': weatherCondition = '구름 많음'; break;
+                case 'DB04': weatherCondition = '흐림'; break;
+            }
+        } else {
+            switch (PREP) {
+                case '1': weatherCondition = '비'; break;
+                case '2': weatherCondition = '비/눈'; break;
+                case '3': weatherCondition = '눈'; break;
+                case '4': weatherCondition = '눈/비'; break;
+            }
+        }
+        h1.innerText = document.getElementById('placeNumberSelect').options[
+            document.getElementById('placeNumberSelect').selectedIndex].text;
+        p.innerText = `강수확률: ${ST}%`;
+        temperatureDiv.innerText = `${weatherCondition}, ${TA}°C`;
     } else {
-        // 추천 결과가 없는 경우
-        cardContainer.innerText = '추천된 옷 정보가 없습니다.';
+        h1.innerText = '지역 정보를 가져올 수 없습니다.';
+        p.innerText = 'API 호출에 실패했습니다.';
+        temperatureDiv.innerText = '-°C';
     }
 }
 
-/**
- * 로딩끝나면 실행되는 함수
- */
+async function removeBgImage(imageUrl) {
+    const apiKey = 'H4Zdg6njJ9Z6NQHfAu8XgYL7';
+    const endpoint = 'https://api.remove.bg/v1.0/removebg';
+    const formData = new FormData();
+    formData.append('image_url', imageUrl);
+    formData.append('size', 'auto');
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'X-Api-Key': apiKey },
+            body: formData
+        });
+        if (!response.ok) throw new Error('remove.bg 호출 실패');
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
+    } catch (err) {
+        console.error(err);
+        return imageUrl;
+    }
+}
+
+async function displayRecommendation(recommendation) {
+    const cardContainer = document.getElementById('recommendationCardContainer');
+    cardContainer.innerHTML = '';
+    if (recommendation) {
+        const { top, bottom, jacket, shoes } = recommendation;
+        const items = [
+            { src: top, alt: '상의' },
+            { src: bottom, alt: '하의' },
+            { src: jacket, alt: '재킷' },
+            { src: shoes, alt: '신발' }
+        ];
+        const promises = items.map(item => removeBgImage(item.src));
+        const bgRemovedUrls = await Promise.all(promises);
+        items.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.innerHTML = `<img src="${bgRemovedUrls[idx]}" alt="${item.alt}">`;
+            cardContainer.appendChild(card);
+        });
+    }
+}
+
+async function getNextOutfit(style, gender) {
+    const recommendation = await getRecommendedOutfit(style, gender);
+    if (recommendation) {
+        recommendations.push(recommendation);
+        currentIndex++;
+        displayRecommendation(recommendation);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    const recommendButton = document.getElementById('recommendButton'); // 추천 받기 버튼 요소 가져오기
+    const recommendButton = document.getElementById('recommendButton');
+    const prevButton = document.getElementById('prevButton');
+    const nextButton = document.getElementById('nextButton');
     if (recommendButton) {
-        recommendButton.addEventListener('click', callRecommendationAPI); // 클릭 이벤트 리스너 등록
+        recommendButton.addEventListener('click', callRecommendationAPI);
     }
-
-    const placeNumberSelect = document.getElementById('placeNumberSelect'); // 지점 번호 선택 select 요소 가져오기
-    placeNumberSelect.addEventListener('change', function() {
-        const placeNumber = placeNumberSelect.value; // 선택된 지점 번호 가져오기
-        getApiInfo(placeNumber); // 지점 번호 변경 시 API 정보 요청
-    });
+    if (prevButton) {
+        prevButton.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                displayRecommendation(recommendations[currentIndex]);
+            }
+        });
+    }
+    if (nextButton) {
+        nextButton.addEventListener('click', async () => {
+            if (currentIndex < recommendations.length - 1) {
+                currentIndex++;
+                displayRecommendation(recommendations[currentIndex]);
+            } else {
+                await getNextOutfit(style, gender);
+            }
+        });
+    }
+    // 오늘 요일 자동 선택
+    const now = new Date();
+    const currentDay = now.getDay();
+    const dayRadios = document.getElementsByName('day');
+    if (currentDay === 0) dayRadios[6].checked = true;
+    else dayRadios[currentDay - 1].checked = true;
 });

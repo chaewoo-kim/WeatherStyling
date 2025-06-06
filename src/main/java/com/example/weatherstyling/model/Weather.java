@@ -17,12 +17,9 @@ public class Weather {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public long id;
 
-    public Date date;
-    public Double placeNumber;
-    public Double temperature;
-    public Double humidity;
-    public Double wind_speed;
-    public Double rainfall;
-    public String weather_condition;
-    public Integer cloud_amount;
+    public String temperature; //기온
+    public String sky; //하늘상태
+    public String prep; //강수 유무
+    public String st; //강수 확률
+
 }

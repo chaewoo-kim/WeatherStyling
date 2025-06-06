@@ -23,15 +23,20 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' //서버 측에서 HTML 생성
 	implementation 'org.springframework.boot:spring-boot-starter-web-services'
+	implementation 'org.crac:crac:1.4.0'
+	implementation 'mysql:mysql-connector-java:8.0.33'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	runtimeOnly 'com.mysql:mysql-connector-j' //MySQL connector
+
+	runtimeOnly 'com.mysql:mysql-connector-j:8.3.0'
+	//MySQL connector
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")  //JPA
 	implementation("org.projectlombok:lombok") //Lombok 기능
 	annotationProcessor("org.projectlombok:lombok") //Lombok이 compile 될 때 적용되도록 추가
 	implementation 'org.json:json:20240303' //json 객체 사용하기 위해 추가
 
+	implementation files('/opt/homebrew/Caskroom/weka/3.8.6/weka-3.8.6.app/Contents/app/weka.jar')
 }
 
 tasks.named('test') {

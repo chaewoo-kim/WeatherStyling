@@ -9,71 +9,94 @@
 <body>
 <script src="/script.js"></script>
 <header>
-  <h1>대전</h1>
-  <p>일교차가 크므로 외투를 꼭 챙기세요</p>
-  <div class="temperature">15°C</div>
+  <h1></h1>
+  <p></p>
+  <div class="temperature"></div>
 </header>
 
 <nav>
   <select id="styleSelect">
-    <option value="All">스타일: all</option>
-    <option value="캐주얼">스타일: 캐주얼</option>
-    <option value="스트릿">스타일: 스트릿</option>
-    <option value="데이트">스타일: 데이트</option>
+    <option value="casual">스타일: 캐주얼</option>
+    <option value="minimal">스타일: 미니멀</option>
+    <option value="formal">스타일: 포멀</option>
   </select>
+
   <select id="sexSelect">
-    <option value="여성">여성</option>
-    <option value="남성">남성</option>
+    <option value="female">여성</option>
+    <option value="male">남성</option>
   </select>
+
   <select id="placeNumberSelect">
-    <option value="90">속초시</option>
-    <option value="101">춘천시</option>
-    <option value="105">강릉시</option>
-    <option value="106">동해시</option>
-    <option value="108">서울시</option>
-    <option value="112">인천시</option>
-    <option value="114">원주시</option>
-    <option value="119">수원시</option>
-    <option value="127">충주시</option>
-    <option value="131">청주시</option>
-    <option value="133">대전시</option>
-    <option value="136">안동시</option>
-    <option value="137">상주시</option>
-    <option value="138">포항시</option>
-    <option value="140">군산시</option>
-    <option value="143">대구시</option>
-    <option value="146">전주시</option>
-    <option value="152">울산시</option>
-    <option value="155">창원시</option>
-    <option value="156">광주시</option>
-    <option value="159">부산시</option>
-    <option value="162">통영시</option>
-    <option value="165">목포시</option>
-    <option value="168">여수시</option>
-    <option value="184">제주시</option>
-    <option value="192">진주시</option>
-    <option value="202">양평시</option>
-    <option value="203">이천시</option>
-    <option value="221">제천시</option>
-    <option value="232">천안시</option>
-    <option value="239">세종시</option>
-    <option value="253">김해시</option>
-    <option value="257">양산시</option>
-    <option value="266">광양시</option>
-    <option value="272">영주시</option>
-    <option value="273">문경시</option>
-    <option value="279">구미시</option>
-    <option value="281">영천시</option>
-    <option value="283">경주시</option>
-    <option value="288">밀양시</option>
+    <optgroup label="경기도">
+      <option value="119" data-reg="11B20601">수원시</option>
+      <option value="202" data-reg="11B20503">양평시</option>
+      <option value="203" data-reg="11B20701">이천시</option>
+    </optgroup>
+    <optgroup label="충청남도">
+      <option value="232" data-reg="11C20301">천안시</option>
+    </optgroup>
+    <optgroup label="충청북도">
+      <option value="127" data-reg="11C10101">충주시</option>
+      <option value="131" data-reg="11C10301">청주시</option>
+    </optgroup>
+    <optgroup label="경상남도">
+      <option value="253" data-reg="11H20304">김해시</option>
+      <option value="257" data-reg="11H20102">양산시</option>
+    </optgroup>
+    <optgroup label="경상북도">
+      <option value="138" data-reg="11H10201">포항시</option>
+      <option value="283" data-reg="11H10202">경주시</option>
+    </optgroup>
+    <optgroup label="전라남도">
+      <option value="165" data-reg="11F20801">목포시</option>
+      <option value="168" data-reg="11F20401">여수시</option>
+    </optgroup>
+    <optgroup label="강원도">
+      <option value="90" data-reg="11D20401">속초시</option>
+      <option value="101" data-reg="11D10301">춘천시</option>
+      <option value="105" data-reg="11D20501">강릉시</option>
+      <option value="106" data-reg="11D20601">동해시</option>
+      <option value="114" data-reg="11D10401">원주시</option>
+    </optgroup>
+    <optgroup label="전라북도">
+      <option value="140" data-reg="21F10501">군산시</option>
+      <option value="146" data-reg="11F10201">전주시</option>
+    </optgroup>
+    <optgroup label="제주도">
+      <option value="184" data-reg="11G00201">제주시</option>
+    </optgroup>
   </select>
+
   <button id="recommendButton">추천 받기</button> <!-- 추천 받기 버튼 추가 -->
 </nav>
 
+<div class="day-selector">
+  <label>
+    <input type="radio" name="day" value="mon"> 월요일
+  </label>
+  <label>
+    <input type="radio" name="day" value="tue"> 화요일
+  </label>
+  <label>
+    <input type="radio" name="day" value="wed"> 수요일
+  </label>
+  <label>
+    <input type="radio" name="day" value="thu"> 목요일
+  </label>
+  <label>
+    <input type="radio" name="day" value="fri"> 금요일
+  </label>
+  <label>
+    <input type="radio" name="day" value="sat"> 토요일
+  </label>
+  <label>
+    <input type="radio" name="day" value="sun"> 일요일
+  </label>
+</div>
 
 <div class="container">
   <div class="button-container">
-    <button class="side-button"><</button>
+    <button id="prevButton"><</button>
   </div>
 
   <div class="big-card">
@@ -83,7 +106,7 @@
   </div>
 
   <div class="button-container">
-    <button class="side-button">></button>
+    <button id="nextButton">></button>
   </div>
 </div>
 

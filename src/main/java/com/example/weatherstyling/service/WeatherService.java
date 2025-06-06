@@ -58,12 +58,6 @@ public class WeatherService {
             e.printStackTrace();
         }
 
-        Map<String, String> map = new HashMap<>();
-        map.put("top", "/images/season/autumn/female/casual/top/top.jpeg");
-        map.put("bottom", "/images/season/autumn/female/casual/bottom/bottom.jpeg");
-        map.put("jacket", "/images/season/autumn/female/casual/outerwear/outerwear.jpeg");
-        map.put("shoes", "/images/season/autumn/female/casual/shoes/shoes.jpeg");
-
-        return map;
+        return clothingRecommendar.returnMap();
     }
 }

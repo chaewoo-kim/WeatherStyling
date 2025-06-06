@@ -13,9 +13,7 @@ import weka.core.*;
 import weka.classifiers.Classifier;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 public class ClothingRecommendar {
@@ -29,10 +27,12 @@ public class ClothingRecommendar {
     int month = today.getMonthValue();
     String season = "";
 
-    String path = "/images/season";
+    String path = "/images";
 
     Weather weather = new Weather();
     ArrayList<Attribute> attributes = new ArrayList<>();
+
+    Map<String, String> returnMap = new HashMap<>();
 
     public ClothingRecommendar(WeatherRepository weatherRepository, String style, String gender) {
 
@@ -50,7 +50,7 @@ public class ClothingRecommendar {
             this.season = "가을";
         }
 
-        path = path + "/" + season + "/" + gender + "/" + style;
+
         System.out.println("path: "+path);
         //path 설정 잘 하고 학습 데이터 바꿔야함
         //chatgpt한테 아예 내 폴더 구조에 있는 데이터셋을 알려주고 그걸 조합하라고 하는게 나을듯?
@@ -125,6 +125,9 @@ public class ClothingRecommendar {
 
         System.out.println("추천 상의: " + predictedTop);
 
+        String top_path = path + "/top/" + predictedTop + ".jpeg";
+        returnMap.put("top", top_path);
+
         attributes.removeIf(attr -> attr.name().equals("top"));
 
     }
@@ -184,6 +187,9 @@ public class ClothingRecommendar {
         String predictedBot = bottom_data.classAttribute().value((int) bottom_predictionIndex);
 
         System.out.println("추천 하의: " + predictedBot);
+
+        String bot_path = path + "/bottom/" + predictedBot + ".jpeg";
+        returnMap.put("bottom", bot_path);
 
         attributes.removeIf(attr -> attr.name().equals("bottom"));
 
@@ -245,13 +251,17 @@ public class ClothingRecommendar {
 
         System.out.println("추천 외투: " + predictedOuter);
 
+        String outer_path = path + "/outer/" + predictedOuter + ".jpeg";
+        returnMap.put("jacket", outer_path);
+        System.out.println(outer_path);
+
         attributes.removeIf(attr -> attr.name().equals("outer"));
 
     }
 
     public void getShoesRecommend() throws Exception {
 
-        attributes.add(new Attribute("shoes", List.of("운동화","로퍼","샌들","구두","워커","부츠","슬립온",""))); // class attribute
+        attributes.add(new Attribute("shoes", List.of("운동화","로퍼","샌들","구두","워커","부츠","슬립온"))); // class attribute
 
         // 데이터셋 생성
         Instances shoes_data = new Instances("ClothingData", attributes, 0);
@@ -304,6 +314,10 @@ public class ClothingRecommendar {
         String predictedShoes= shoes_data.classAttribute().value((int) shoes_predictionIndex);
 
         System.out.println("추천 신발: " + predictedShoes);
+
+        String shoes_path = path + "/shoes/" + predictedShoes + ".jpeg";
+        returnMap.put("shoes", shoes_path);
+        System.out.println(shoes_path);
 
         attributes.removeIf(attr -> attr.name().equals("shoes"));
 
@@ -365,9 +379,14 @@ public class ClothingRecommendar {
 
         System.out.println("추천 악세서리: " + predictedAccessory);
 
+        String accessory_path = path + "/accessory/" + predictedAccessory + ".jpeg";
+        returnMap.put("accessory", accessory_path);
+
         attributes.removeIf(attr -> attr.name().equals("accessory"));
 
     }
+
+    public Map<String, String> returnMap() {
+        return returnMap;
+    }
 }
-//여기다가 상하의신발외투악세까지 총 5개 모델 연동하고
-//Map<String, String>으로 outfit API에 반환하는 것까지 하자

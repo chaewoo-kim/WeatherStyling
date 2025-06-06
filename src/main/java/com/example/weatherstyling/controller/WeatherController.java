@@ -61,7 +61,7 @@ public class WeatherController {
             //단기 예보
             System.out.println(formattedToday);
             System.out.println(request.getYear() + request.getMonth() + request.getDay());
-            request.setUrl_main(request.getUrl_body() + "fct_afs_dl.php?" + "&tmef1=" + request.getStart_tm() + "&tmef2=" + request.getEnd_tm() + "&disp=0&" + request.getHelp() + "&authKey=" + request.getAuthKey());
+            request.setUrl_main(request.getUrl_body() + "fct_afs_dl.php?" + "reg=" + request.getReg() + "&tmef1=" + request.getStart_tm() + "&tmef2=" + request.getEnd_tm() + "&disp=0&" + request.getHelp() + "&authKey=" + request.getAuthKey());
             System.out.println("url: "+request.getUrl_main());
 
             return weatherService.getShortWeatherData(request.getUrl_main());
